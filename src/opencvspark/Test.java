@@ -45,7 +45,7 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-		String imagesSequenceFile = "/home/thomas/test.hsf";
+		String imagesSequenceFile = "/home/thomas/test.hsf"; // change this
 		SparkConf conf = new SparkConf().setAppName("opencvspark").setMaster(
 				"local[4]");
 		JavaSparkContext sc = new JavaSparkContext(conf);
@@ -62,7 +62,7 @@ public class Test {
 						String filename = kv._1.toString();
 						String filenameWithoutExtension = FilenameUtils
 								.getName(filename);
-						Mat cv = byteswritableToOpenCVMat(kv._2);
+						Mat cv = Utils.byteswritableToOpenCVMat(kv._2);
 
 						// Init People detection
 						PeopleDetection p = new PeopleDetection();
@@ -273,24 +273,4 @@ public class Test {
 		}
 	}
 
-	/* HELPER FUNCTIONS */
-	public static Mat byteswritableToOpenCVMat(BytesWritable inputBW) {
-		byte[] imageFileBytes = inputBW.getBytes();
-		Mat img = new Mat();
-		Byte[] bigByteArray = new Byte[imageFileBytes.length];
-		for (int i = 0; i < imageFileBytes.length; i++)
-			bigByteArray[i] = new Byte(imageFileBytes[i]);
-		List<Byte> matlist = Arrays.asList(bigByteArray);
-		img = Converters.vector_char_to_Mat(matlist);
-		img = Imgcodecs.imdecode(img, Imgcodecs.CV_LOAD_IMAGE_COLOR);
-		return img;
-	}
-
-	public static String byteswritableToString(BytesWritable inputBW) {
-		byte[] imageFileBytes = inputBW.getBytes();
-		String metadataString = new String(imageFileBytes, 0,
-				imageFileBytes.length,
-				java.nio.charset.Charset.forName("ISO-8859-1"));
-		return metadataString;
-	}
 }

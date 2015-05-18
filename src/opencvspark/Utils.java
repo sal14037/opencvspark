@@ -1,7 +1,11 @@
 package opencvspark;
 
+import java.util.Arrays;
+import java.util.List;
+
 import hipi.image.FloatImage;
 
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.log4j.Logger;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -9,31 +13,11 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 public class Utils {
 
 	public static Logger l = Logger.getLogger(Test.class);
-
-	public static Mat floatImgToMat(FloatImage value) {
-		float[] f = value.getData();
-		int w = value.getWidth();
-		int h = value.getHeight();
-		int b = value.getBands();
-
-		Mat m = new Mat(h, w, CvType.CV_32FC3);
-
-		// Traverse image pixel data in raster-scan order and update running
-		for (int j = 0; j < h; j++) {
-			for (int i = 0; i < w; i++) {
-				float[] fv = { f[(j * w + i) * 3 + 2] * 255,
-						f[(j * w + i) * 3 + 1] * 255,
-						f[(j * w + i) * 3 + 0] * 255 };
-				m.put(j, i, fv);
-			}
-		}
-
-		return m;
-	}
 
 	public static byte[] matToByteArr(Mat m) {
 		MatOfByte buf = new MatOfByte();
@@ -41,6 +25,27 @@ public class Utils {
 		m.convertTo(m, CvType.CV_8UC1);
 		byte[] b = buf.toArray();
 		return b;
+	}
+
+	/* HELPER FUNCTIONS */
+	public static Mat byteswritableToOpenCVMat(BytesWritable inputBW) {
+		byte[] imageFileBytes = inputBW.getBytes();
+		Mat img = new Mat();
+		Byte[] bigByteArray = new Byte[imageFileBytes.length];
+		for (int i = 0; i < imageFileBytes.length; i++)
+			bigByteArray[i] = new Byte(imageFileBytes[i]);
+		List<Byte> matlist = Arrays.asList(bigByteArray);
+		img = Converters.vector_char_to_Mat(matlist);
+		img = Imgcodecs.imdecode(img, Imgcodecs.CV_LOAD_IMAGE_COLOR);
+		return img;
+	}
+
+	public static String byteswritableToString(BytesWritable inputBW) {
+		byte[] imageFileBytes = inputBW.getBytes();
+		String metadataString = new String(imageFileBytes, 0,
+				imageFileBytes.length,
+				java.nio.charset.Charset.forName("ISO-8859-1"));
+		return metadataString;
 	}
 
 	public static Mat cropMatrix(Mat input, Rect rect) {

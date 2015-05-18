@@ -10,7 +10,7 @@ public class FaceRecognition {
 	private int[] predicted = new int[1];
 	private double[] confidence = new double[1];
 	private final Scalar colour = new Scalar(255, 0, 0);
-	private String savedFR = "/home/thomas/workspace/opencvcloud/test.yml";
+	private String savedFR = "/home/thomas/workspace/opencvcloud/test.yml"; //change this
 
 	// FACERECOGNITION
 
